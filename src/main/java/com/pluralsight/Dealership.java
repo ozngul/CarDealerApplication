@@ -27,7 +27,7 @@ public class Dealership {
         inventory.add(vehicle);
     }
 
-    // Method to remove a vehicle from the inventory
+
     public void removeVehicle(Vehicle vehicle) {
         inventory.remove(vehicle);
     }
@@ -37,7 +37,7 @@ public class Dealership {
         return inventory;
     }
 
-    // Method to get vehicles by price range
+
     public List<Vehicle> getVehiclesByPrice(double min, double max) {
         List<Vehicle> result = new ArrayList<>();
         for (Vehicle vehicle : inventory) {
@@ -48,7 +48,7 @@ public class Dealership {
         return result;
     }
 
-    // Method to get vehicles by make and model
+
     public List<Vehicle> getVehiclesByMakeModel(String make, String model) {
         List<Vehicle> result = new ArrayList<>();
         for (Vehicle vehicle : inventory) {
@@ -124,5 +124,15 @@ public class Dealership {
 
     public String getPhone() {
         return phone;
+    }
+
+    // Method to get a vehicle by VIN
+    public Vehicle getVehicleByVin(int vin) {
+        for (Vehicle vehicle : inventory) {
+            if (vehicle.getVin() == vin) {
+                return vehicle;
+            }
+        }
+        return null;
     }
 }

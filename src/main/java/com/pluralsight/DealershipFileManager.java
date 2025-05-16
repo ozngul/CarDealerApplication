@@ -15,7 +15,7 @@ public class DealershipFileManager {
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue; // Skip empty lines
 
-                // Format: vin,year,make,model,type,color,odometer,price
+
                 String[] data = line.split("\\|");
                 if (data.length == 8) {
                     try {

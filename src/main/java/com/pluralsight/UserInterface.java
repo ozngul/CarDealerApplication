@@ -1,166 +1,180 @@
 package com.pluralsight;
-import java.util.*;
+
+import java.util.Scanner;
 
 public class UserInterface {
     private Dealership dealership;
-    private Scanner scanner;
+    private DealershipFileManager dealershipFileManager;
+    private ContractFileManager contractFileManager;
 
     public UserInterface() {
-        scanner = new Scanner(System.in);
-        dealership = new Dealership(); // dealership nesnesi başlatılıyor.
+        this.dealershipFileManager = new DealershipFileManager();
+        this.dealership = dealershipFileManager.getDealership();
+        this.contractFileManager = new ContractFileManager();
     }
-    public void printDealershipDetails() {
-        System.out.println(dealership.dealershipToString());
-    }
+
     public void display() {
-        init(); // Başlatma işlemi
-        boolean running = true;
+        Scanner scanner = new Scanner(System.in);
 
-        while (running) {
-            displayMenu();
-            System.out.print("Enter command: ");
-            int command = scanner.nextInt();
-            scanner.nextLine(); // dummy read
+        while (true) {
+            System.out.println("\n== Dealership Menu ==");
+            System.out.println("1. View All Vehicles");
+            System.out.println("2. Search by Price");
+            System.out.println("3. Search by Make/Model");
+            System.out.println("4. Sell/Lease a Vehicle");
+            System.out.println("5. Add a Vehicle");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
 
-            switch (command) {
-                case 1 -> processGetByPriceRequest();
-                case 2 -> processGetByMakeModelRequest();
-                case 3 -> processGetByYearRequest();
-                case 4 -> processGetByColorRequest();
-                case 5 -> processGetByMileageRequest();
-                case 6 -> processGetByVehicleTypeRequest();
-                case 7 -> processAllVehiclesRequest();
-                case 8 -> processAddVehicleRequest();
-                case 9 -> processRemoveVehicleRequest();
-                case 0 -> running = false;
-                default -> System.out.println("Invalid command. Try again.");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Dummy read
+
+            switch (choice) {
+                case 1 -> displayAllVehicles();
+                case 2 -> searchByPrice(scanner);
+                case 3 -> searchByMakeModel(scanner);
+                case 4 -> handleContract(scanner);
+                case 5 -> addVehicle(scanner);  // Yeni eklenen seçenek
+                case 6 -> {
+                    System.out.println("Goodbye!");
+                    return;
+                }
+                default -> System.out.println("Invalid choice! Please try again.");
             }
         }
     }
 
-    private void init() {
-        DealershipFileManager fileManager = new DealershipFileManager();
-        dealership = fileManager.getDealership(); // dealership yükleniyor
-    }
-
-    private void displayMenu() {
-        System.out.println("\n===== Vehicle Dealership Menu =====");
-        System.out.println("1. Search by Price");
-        System.out.println("2. Search by Make & Model");
-        System.out.println("3. Search by Year");
-        System.out.println("4. Search by Color");
-        System.out.println("5. Search by Mileage");
-        System.out.println("6. Search by Type");
-        System.out.println("7. Show All Vehicles");
-        System.out.println("8. Add a Vehicle");
-        System.out.println("9. Remove a Vehicle");
-        System.out.println("0. Exit");
-    }
-
-    private void displayVehicles(List<Vehicle> vehicles) {
-        if (vehicles == null || vehicles.isEmpty()) {
-            System.out.println("No vehicles to display.");
-            return;
-        }
-        for (Vehicle v : vehicles) {
-            System.out.println(v);
-        }
-    }
-
-    public void processGetByPriceRequest() {
-        System.out.print("Enter min price: ");
-        double min = scanner.nextDouble();
-        System.out.print("Enter max price: ");
-        double max = scanner.nextDouble();
-        scanner.nextLine(); // dummy read
-        displayVehicles(dealership.getVehiclesByPrice(min, max));
-    }
-
-    public void processGetByMakeModelRequest() {
-        System.out.print("Enter make: ");
-        String make = scanner.nextLine();
-        System.out.print("Enter model: ");
-        String model = scanner.nextLine();
-        displayVehicles(dealership.getVehiclesByMakeModel(make, model));
-    }
-
-    public void processGetByYearRequest() {
-        System.out.print("Enter year: ");
-        int year = scanner.nextInt();
-        scanner.nextLine(); // dummy read
-        displayVehicles(dealership.getVehiclesByYear(year));
-    }
-
-    public void processGetByColorRequest() {
-        System.out.print("Enter color: ");
-        String color = scanner.nextLine();
-        displayVehicles(dealership.getVehiclesByColor(color));
-    }
-
-    public void processGetByMileageRequest() {
-        System.out.print("Enter min mileage: ");
-        int min = scanner.nextInt();
-        System.out.print("Enter max mileage: ");
-        int max = scanner.nextInt();
-        scanner.nextLine(); // dummy read
-        displayVehicles(dealership.getVehiclesByMileage(min, max));
-    }
-
-    public void processGetByVehicleTypeRequest() {
-        System.out.print("Enter type: ");
-        String type = scanner.nextLine();
-        displayVehicles(dealership.getVehiclesByType(type));
-    }
-
-    public void processAllVehiclesRequest() {
-        displayVehicles(dealership.getAllVehicles());
-    }
-
-    public void processAddVehicleRequest() {
-        System.out.print("Enter VIN: ");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
-        System.out.print("Enter year: ");
-        int year = scanner.nextInt();
-        scanner.nextLine();
-        System.out.print("Enter make: ");
-        String make = scanner.nextLine();
-        System.out.print("Enter model: ");
-        String model = scanner.nextLine();
-        System.out.print("Enter type: ");
-        String type = scanner.nextLine();
-        System.out.print("Enter color: ");
-        String color = scanner.nextLine();
-        System.out.print("Enter odometer: ");
-        int odometer = scanner.nextInt();
-        System.out.print("Enter price: ");
-        double price = scanner.nextDouble();
-        scanner.nextLine();
-
-        Vehicle vehicle = new Vehicle(vin, year, make, model, type, color, odometer, price);
-        dealership.addVehicle(vehicle);
-        new DealershipFileManager().saveDealership(dealership); // Veriyi kaydet
-    }
-
-    public void processRemoveVehicleRequest() {
-        System.out.print("Enter VIN of vehicle to remove: ");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
-
-        Vehicle toRemove = null;
-        for (Vehicle v : dealership.getAllVehicles()) {
-            if (v.getVin() == vin) {
-                toRemove = v;
-                break;
-            }
-        }
-
-        if (toRemove != null) {
-            dealership.removeVehicle(toRemove);
-            new DealershipFileManager().saveDealership(dealership); // Veriyi kaydet
+    private void displayAllVehicles() {
+        if (dealership.getAllVehicles().isEmpty()) {
+            System.out.println("No vehicles available in the inventory.");
         } else {
-            System.out.println("Vehicle not found.");
+            for (Vehicle v : dealership.getAllVehicles()) {
+                System.out.println(v.toStringForDealership());
+            }
+        }
+    }
+
+    private void addVehicle(Scanner scanner) {
+        try {
+            System.out.print("Enter VIN: ");
+            int vin = Integer.parseInt(scanner.nextLine().trim());
+
+            System.out.print("Enter Year: ");
+            int year = Integer.parseInt(scanner.nextLine().trim());
+
+            System.out.print("Enter Make: ");
+            String make = scanner.nextLine().trim();
+
+            System.out.print("Enter Model: ");
+            String model = scanner.nextLine().trim();
+
+            System.out.print("Enter Vehicle Type: ");
+            String vehicleType = scanner.nextLine().trim();
+
+            System.out.print("Enter Color: ");
+            String color = scanner.nextLine().trim();
+
+            System.out.print("Enter Odometer: ");
+            int odometer = Integer.parseInt(scanner.nextLine().trim());
+
+            System.out.print("Enter Price: ");
+            double price = Double.parseDouble(scanner.nextLine().trim());
+
+            Vehicle newVehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
+            dealership.addVehicle(newVehicle);
+            dealershipFileManager.saveDealership(dealership);
+            System.out.println(" Vehicle added successfully.");
+
+        } catch (NumberFormatException e) {
+            System.out.println(" Invalid input. Please enter valid numbers.");
+        }
+    }
+
+    private void searchByPrice(Scanner scanner) {
+        try {
+            System.out.print("Enter min price: ");
+            double min = scanner.nextDouble();
+            System.out.print("Enter max price: ");
+            double max = scanner.nextDouble();
+            scanner.nextLine(); // consume newline
+
+            for (Vehicle v : dealership.getVehiclesByPrice(min, max)) {
+                System.out.println(v.toStringForDealership());
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid price input. Please enter valid numbers.");
+            scanner.nextLine(); // Clear the invalid input
+        }
+    }
+
+    private void searchByMakeModel(Scanner scanner) {
+        System.out.print("Enter make: ");
+        String make = scanner.nextLine().trim();
+        System.out.print("Enter model: ");
+        String model = scanner.nextLine().trim();
+
+        for (Vehicle v : dealership.getVehiclesByMakeModel(make, model)) {
+            System.out.println(v.toStringForDealership());
+        }
+    }
+
+    private void handleContract(Scanner scanner) {
+        try {
+            System.out.print("Enter VIN of vehicle to sell/lease: ");
+            int vin = Integer.parseInt(scanner.nextLine().trim());
+
+            Vehicle selected = dealership.getVehicleByVin(vin);
+            if (selected == null) {
+                System.out.println("Vehicle not found.");
+                return;
+            }
+
+            System.out.print("Enter customer name: ");
+            String name = scanner.nextLine().trim();
+
+            System.out.print("Enter customer email: ");
+            String email = scanner.nextLine().trim();
+
+            System.out.print("Enter date (YYYYMMDD): ");
+            String date = scanner.nextLine().trim();
+
+            System.out.print("Is this a sale or lease? (1.Sale 2.Lease): ");
+            int contractType = scanner.nextInt();
+            scanner.nextLine();
+
+            if (contractType == 1) {
+                System.out.print("Do they want financing? 1.Yes 2.No: ");
+                int financeOption = scanner.nextInt();
+                scanner.nextLine();
+                boolean finance = SalesContract.isFinanceneeded(financeOption);
+
+
+                SalesContract sale = new SalesContract(date, name, email, selected, finance);
+                contractFileManager.saveSalesContract(sale);
+                dealershipFileManager.saveDealership(dealership);
+                System.out.println(" Sales contract saved.");
+
+            } else if (contractType == 2) {
+                int currentYear = 2025; // Bu statik olabilir veya dinamik yapılabilir
+                if (currentYear - selected.getYear() > 3) {
+                    System.out.println("This vehicle is too old to lease (older than 3 years).");
+                    return;
+                }
+
+                LeaseContract lease = new LeaseContract(date, name, email, selected);
+                contractFileManager.saveLeaseContract(lease);
+                dealership.removeVehicle(selected);
+                dealershipFileManager.saveDealership(dealership);
+                System.out.println(" Lease contract saved.");
+
+            } else {
+                System.out.println("Invalid option. Please choose either 'sale' or 'lease'.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid VIN. Please enter a numeric VIN.");
+        } catch (Exception e) {
+            System.out.println("An error occurred while processing the contract: " + e.getMessage());
         }
     }
 }
-
